@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register — Lohiya Tech</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <style>
+    .auth-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6rem 1.5rem 2rem;
+      position: relative;
+    }
+
+    .auth-bg {
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 70% 50%, rgba(0, 102, 255, 0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 40% at 30% 50%, rgba(124, 58, 237, 0.06) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .auth-container {
+      width: 100%;
+      max-width: 460px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .auth-header { text-align: center; margin-bottom: 2rem; }
+
+    .auth-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 1.5rem;
+    }
+    .auth-logo .accent { color: var(--accent-cyan); }
+
+    .auth-header h1 { font-size: 1.9rem; margin-bottom: 0.5rem; }
+    .auth-header p { color: var(--text-secondary); font-size: 0.9rem; }
+
+    .auth-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .auth-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
+    }
+
+    .strength-bar {
+      height: 3px;
+      border-radius: 2px;
+      background: var(--border);
+      margin-top: 0.5rem;
+      overflow: hidden;
+    }
+
+    .strength-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: all 0.3s ease;
+      width: 0%;
+    }
+
+    .strength-text {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      margin-top: 0.3rem;
+    }
+
+    .password-wrapper {
+      position: relative;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1rem;
+      transition: var(--transition);
+    }
+    .password-toggle:hover { color: var(--accent-cyan); }
+
+    .terms {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    .auth-footer {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+    }
+    .auth-footer a { color: var(--accent-cyan); font-weight: 500; }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="/" class="nav-brand"><span>⬡</span> Lohiya<span class="brand-accent">Tech</span></a>
+    <div class="nav-toggle"><span></span><span></span><span></span></div>
+    <ul class="nav-links" id="navLinks">
+      <ul id="nav-auth"></ul>
+    </ul>
+  </nav>
+
+  <div class="auth-bg"></div>
+
+  <div class="auth-page">
+    <div class="auth-container">
+      <div class="auth-header">
+        <div class="auth-logo"><span>⬡</span> Lohiya<span class="accent">Tech</span></div>
+        <h1>Create Account</h1>
+        <p>Join Lohiya Tech and start building today</p>
+      </div>
+
+      <div class="auth-card">
+        <div class="alert" id="alert"></div>
+
+        <div class="form-group">
+          <label class="form-label" for="username">Username</label>
+          <input class="form-input" type="text" id="username" placeholder="yourhandle" autocomplete="username" maxlength="30" />
+          <div class="form-error" id="username-error"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="email">Email Address</label>
+          <input class="form-input" type="email" id="email" placeholder="you@example.com" autocomplete="email" />
+          <div class="form-error" id="email-error"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <div class="password-wrapper">
+            <input class="form-input" type="password" id="password" placeholder="Min 8 characters" autocomplete="new-password" oninput="checkStrength(this.value)" />
+            <button class="password-toggle" type="button" onclick="togglePw('password')">👁</button>
+          </div>
+          <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+          <div class="strength-text" id="strengthText"></div>
+          <div class="form-error" id="password-error"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="confirmPassword">Confirm Password</label>
+          <div class="password-wrapper">
+            <input class="form-input" type="password" id="confirmPassword" placeholder="Repeat password" autocomplete="new-password" />
+            <button class="password-toggle" type="button" onclick="togglePw('confirmPassword')">👁</button>
+          </div>
+          <div class="form-error" id="confirmPassword-error"></div>
+        </div>
+
+        <button class="btn btn-primary btn-full mt-2" id="registerBtn" onclick="handleRegister()">
+          Create Account
+        </button>
+
+        <p class="terms">By registering you agree to our Terms of Service and Privacy Policy.</p>
+      </div>
+
+      <div class="auth-footer">
+        Already have an account? <a href="/login">Sign in</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (Auth.isLoggedIn()) window.location.href = '/dashboard';
+    });
+
+    function togglePw(id) {
+      const input = document.getElementById(id);
+      input.type = input.type === 'password' ? 'text' : 'password';
+    }
+
+    function checkStrength(pw) {
+      const fill = document.getElementById('strengthFill');
+      const text = document.getElementById('strengthText');
+      let score = 0;
+      if (pw.length >= 8) score++;
+      if (/[A-Z]/.test(pw)) score++;
+      if (/[0-9]/.test(pw)) score++;
+      if (/[^A-Za-z0-9]/.test(pw)) score++;
+
+      const levels = [
+        { pct: 0, color: '', label: '' },
+        { pct: 25, color: '#ff3366', label: 'Weak' },
+        { pct: 50, color: '#ff9900', label: 'Fair' },
+        { pct: 75, color: '#00d4ff', label: 'Good' },
+        { pct: 100, color: '#00ff88', label: 'Strong' },
+      ];
+
+      const level = levels[score];
+      fill.style.width = level.pct + '%';
+      fill.style.background = level.color;
+      text.textContent = level.label;
+      text.style.color = level.color;
+    }
+
+    async function handleRegister() {
+      const btn = document.getElementById('registerBtn');
+      const alertEl = document.getElementById('alert');
+      const username = document.getElementById('username').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+
+      clearAllErrors(document.querySelector('.auth-card'));
+      alertEl.className = 'alert';
+
+      let valid = true;
+
+      if (!username || username.length < 3) {
+        showFieldError('username', 'Username must be at least 3 characters'); valid = false;
+      } else if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+        showFieldError('username', 'Only letters, numbers and underscores allowed'); valid = false;
+      }
+
+      if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
+        showFieldError('email', 'Please enter a valid email'); valid = false;
+      }
+
+      if (!password || password.length < 8) {
+        showFieldError('password', 'Password must be at least 8 characters'); valid = false;
+      }
+
+      if (password !== confirmPassword) {
+        showFieldError('confirmPassword', 'Passwords do not match'); valid = false;
+      }
+
+      if (!valid) return;
+
+      showLoading(btn, 'Creating Account...');
+
+      try {
+        const data = await api.post('/auth/register', { username, email, password });
+        Auth.setToken(data.token);
+        Auth.setUser(data.user);
+        Toast.success('Account created! Welcome to Lohiya Tech!');
+        setTimeout(() => window.location.href = '/dashboard', 800);
+      } catch (err) {
+        alertEl.textContent = err.message || 'Registration failed. Please try again.';
+        alertEl.className = 'alert alert-error show';
+        hideLoading(btn);
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') handleRegister();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "name": "lohiya-tech",
+  "version": "1.0.0",
+  "description": "Lohiya Tech — Full Stack Web Application",
+  "scripts": {
+    "install": "cd backend && npm install",
+    "dev": "cd backend && npm run dev",
+    "start": "cd backend && npm start"
+  }
+}

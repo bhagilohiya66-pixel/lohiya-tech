@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel — Lohiya Tech</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <style>
+    .admin-page {
+      padding: 6rem 2rem 4rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      min-height: 100vh;
+    }
+
+    .admin-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .admin-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.3rem 0.8rem;
+      background: rgba(124, 58, 237, 0.15);
+      border: 1px solid rgba(124, 58, 237, 0.3);
+      border-radius: 100px;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: #a78bfa;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.5rem;
+    }
+
+    .admin-title { font-size: 2rem; }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .stat-mini {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      text-align: center;
+      transition: var(--transition);
+    }
+
+    .stat-mini:hover { border-color: var(--border-bright); transform: translateY(-2px); }
+
+    .stat-mini-value {
+      font-family: var(--font-display);
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--accent-cyan);
+    }
+
+    .stat-mini-label {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-top: 0.3rem;
+    }
+
+    /* ── Users Table ── */
+    .table-wrapper {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+
+    .table-header {
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .table-title {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+    }
+
+    .search-input {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.6rem 1rem;
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      outline: none;
+      width: 220px;
+      transition: var(--transition);
+    }
+
+    .search-input:focus { border-color: var(--accent-cyan); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    thead { background: rgba(0, 212, 255, 0.04); }
+
+    th {
+      padding: 1rem 1.5rem;
+      text-align: left;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid rgba(0, 212, 255, 0.05);
+      color: var(--text-secondary);
+      vertical-align: middle;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    tr:hover td { background: rgba(0, 212, 255, 0.03); }
+
+    .user-cell {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .user-mini-avatar {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .user-name { color: var(--text-primary); font-weight: 500; }
+    .user-date { font-family: var(--font-mono); font-size: 0.72rem; }
+
+    .actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+    .table-empty {
+      text-align: center;
+      padding: 4rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .pagination {
+      padding: 1.25rem 2rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .pagination-info {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .pagination-btns { display: flex; gap: 0.5rem; }
+
+    @media (max-width: 900px) {
+      .admin-page { padding: 5rem 1rem 3rem; }
+      .table-wrapper { overflow-x: auto; }
+      table { min-width: 700px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="/" class="nav-brand"><span>⬡</span> Lohiya<span class="brand-accent">Tech</span></a>
+    <div class="nav-toggle"><span></span><span></span><span></span></div>
+    <ul class="nav-links" id="navLinks">
+      <ul id="nav-auth"></ul>
+    </ul>
+  </nav>
+
+  <div id="pageLoader" class="page-loader" style="display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:1rem">
+    <div class="loader" style="width:40px;height:40px;border-width:3px"></div>
+    <p style="font-family:var(--font-mono);font-size:0.82rem;color:var(--text-muted)">Verifying admin access...</p>
+  </div>
+
+  <div class="admin-page" id="adminContent" style="display:none">
+
+    <div class="admin-header">
+      <div>
+        <div class="admin-badge">⚙ Admin Control Panel</div>
+        <h1 class="admin-title">User Management</h1>
+        <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:0.25rem">Manage all registered users and platform settings</p>
+      </div>
+      <div style="display:flex;gap:0.75rem">
+        <a href="/dashboard"><button class="btn btn-outline btn-sm">← Dashboard</button></a>
+        <button class="btn btn-danger btn-sm" onclick="logoutUser()">⏻ Logout</button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-mini">
+        <div class="stat-mini-value" id="statTotal">—</div>
+        <div class="stat-mini-label">Total Users</div>
+      </div>
+      <div class="stat-mini">
+        <div class="stat-mini-value" id="statActive">—</div>
+        <div class="stat-mini-label">Active Users</div>
+      </div>
+      <div class="stat-mini">
+        <div class="stat-mini-value" id="statAdmins">—</div>
+        <div class="stat-mini-label">Admins</div>
+      </div>
+      <div class="stat-mini">
+        <div class="stat-mini-value" id="statNewWeek">—</div>
+        <div class="stat-mini-label">New This Week</div>
+      </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="table-wrapper">
+      <div class="table-header">
+        <div class="table-title">Registered Users</div>
+        <input class="search-input" type="text" placeholder="Search users..." id="searchInput" oninput="filterUsers()" />
+      </div>
+
+      <div style="overflow-x:auto">
+        <table id="usersTable">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Joined</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="usersBody">
+            <tr><td colspan="6" class="table-empty">Loading users...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination">
+        <div class="pagination-info" id="paginationInfo">—</div>
+        <div class="pagination-btns">
+          <button class="btn btn-outline btn-sm" id="prevBtn" onclick="changePage(-1)">← Prev</button>
+          <button class="btn btn-outline btn-sm" id="nextBtn" onclick="changePage(1)">Next →</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    let allUsers = [];
+    let filteredUsers = [];
+    let currentPage = 1;
+    const PER_PAGE = 10;
+
+    async function loadAdmin() {
+      if (!Auth.requireAuth()) return;
+
+      try {
+        // Verify admin
+        const meData = await api.get('/auth/me');
+        if (meData.user.role !== 'admin') {
+          Toast.error('Admin access required');
+          setTimeout(() => window.location.href = '/dashboard', 1500);
+          return;
+        }
+
+        // Load stats
+        const statsData = await api.get('/admin/stats');
+        const s = statsData.stats;
+        document.getElementById('statTotal').textContent = s.totalUsers;
+        document.getElementById('statActive').textContent = s.activeUsers;
+        document.getElementById('statAdmins').textContent = s.adminUsers;
+        document.getElementById('statNewWeek').textContent = s.newUsersThisWeek;
+
+        // Load users
+        const usersData = await api.get('/admin/users?limit=200');
+        allUsers = usersData.users;
+        filteredUsers = [...allUsers];
+        renderTable();
+
+        document.getElementById('pageLoader').style.display = 'none';
+        document.getElementById('adminContent').style.display = 'block';
+
+      } catch (err) {
+        Toast.error('Failed to load admin panel');
+        setTimeout(() => window.location.href = '/dashboard', 1500);
+      }
+    }
+
+    function filterUsers() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      filteredUsers = allUsers.filter(u =>
+        u.username.toLowerCase().includes(q) ||
+        u.email.toLowerCase().includes(q) ||
+        u.role.toLowerCase().includes(q)
+      );
+      currentPage = 1;
+      renderTable();
+    }
+
+    function renderTable() {
+      const start = (currentPage - 1) * PER_PAGE;
+      const page = filteredUsers.slice(start, start + PER_PAGE);
+      const tbody = document.getElementById('usersBody');
+
+      if (page.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="table-empty">No users found</td></tr>';
+        return;
+      }
+
+      const me = Auth.getUser();
+
+      tbody.innerHTML = page.map(u => `
+        <tr id="row-${u._id}">
+          <td>
+            <div class="user-cell">
+              <div class="user-mini-avatar">${u.username[0].toUpperCase()}</div>
+              <div>
+                <div class="user-name">${u.username}</div>
+                <div class="user-date">${u._id === me?._id ? '(You)' : ''}</div>
+              </div>
+            </div>
+          </td>
+          <td style="font-family:var(--font-mono);font-size:0.78rem">${u.email}</td>
+          <td><span class="badge badge-${u.role}">${u.role}</span></td>
+          <td><span class="badge badge-${u.isActive ? 'active' : 'inactive'}">${u.isActive ? 'Active' : 'Inactive'}</span></td>
+          <td class="user-date">${new Date(u.createdAt).toLocaleDateString()}</td>
+          <td>
+            <div class="actions">
+              ${u._id !== me?._id ? `
+                <button class="btn btn-outline btn-sm" onclick="toggleStatus('${u._id}', ${u.isActive})">
+                  ${u.isActive ? 'Deactivate' : 'Activate'}
+                </button>
+                ${u.role !== 'admin' ? `<button class="btn btn-primary btn-sm" onclick="makeAdmin('${u._id}')">Make Admin</button>` : ''}
+                <button class="btn btn-danger btn-sm" onclick="deleteUser('${u._id}')">Delete</button>
+              ` : '<span class="text-muted" style="font-size:0.78rem;font-family:var(--font-mono)">—</span>'}
+            </div>
+          </td>
+        </tr>
+      `).join('');
+
+      // Pagination info
+      const total = filteredUsers.length;
+      const totalPages = Math.ceil(total / PER_PAGE);
+      document.getElementById('paginationInfo').textContent =
+        `Showing ${start + 1}–${Math.min(start + PER_PAGE, total)} of ${total} users`;
+      document.getElementById('prevBtn').disabled = currentPage <= 1;
+      document.getElementById('nextBtn').disabled = currentPage >= totalPages;
+    }
+
+    function changePage(dir) {
+      const totalPages = Math.ceil(filteredUsers.length / PER_PAGE);
+      currentPage = Math.max(1, Math.min(totalPages, currentPage + dir));
+      renderTable();
+    }
+
+    async function toggleStatus(id, isActive) {
+      try {
+        const data = await api.put(`/admin/users/${id}/toggle-status`);
+        const idx = allUsers.findIndex(u => u._id === id);
+        if (idx !== -1) allUsers[idx].isActive = !isActive;
+        filterUsers();
+        Toast.success(data.message);
+      } catch (err) {
+        Toast.error(err.message);
+      }
+    }
+
+    async function makeAdmin(id) {
+      if (!confirm('Promote this user to admin? This grants full access.')) return;
+      try {
+        await api.put(`/admin/users/${id}/make-admin`);
+        const idx = allUsers.findIndex(u => u._id === id);
+        if (idx !== -1) allUsers[idx].role = 'admin';
+        filterUsers();
+        Toast.success('User promoted to admin!');
+      } catch (err) {
+        Toast.error(err.message);
+      }
+    }
+
+    async function deleteUser(id) {
+      if (!confirm('Permanently delete this user? This cannot be undone.')) return;
+      try {
+        await api.delete(`/admin/users/${id}`);
+        allUsers = allUsers.filter(u => u._id !== id);
+        filteredUsers = filteredUsers.filter(u => u._id !== id);
+        renderTable();
+        Toast.success('User deleted successfully');
+        // Update total
+        document.getElementById('statTotal').textContent = allUsers.length;
+      } catch (err) {
+        Toast.error(err.message);
+      }
+    }
+
+    loadAdmin();
+  </script>
+</body>
+</html>
